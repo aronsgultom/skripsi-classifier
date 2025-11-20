@@ -29,11 +29,13 @@ from tqdm import tqdm                                           # progress bar
 import nltk
 from nltk.downloader import DownloadError
 
+import nltk
+from nltk.downloader import DownloadError
+
 try:
 nltk.data.find('tokenizers/punkt')
 nltk.data.find('corpora/stopwords')
 except DownloadError:
-# Di server fresh, ini mengunduh resource minimal agar fungsi tokenisasi & stopword jalan.
 nltk.download('punkt', quiet=True)
 nltk.download('stopwords', quiet=True)
 
