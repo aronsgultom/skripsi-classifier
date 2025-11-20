@@ -5,6 +5,7 @@
 # ============================================================
 
 import os, io, re, warnings, sys
+
 from collections import Counter
 
 import numpy as np
@@ -21,24 +22,36 @@ import pytesseract                                              # OCR teks dari 
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 from tqdm import tqdm                                           # progress bar
 
+
+
 # --- NLTK: tokenisasi & stopword ---
+
 import nltk
+from nltk.downloader import DownloadError
+
 try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-except nltk.downloader.DownloadError:
-    # Di server fresh, ini mengunduh resource minimal agar fungsi tokenisasi & stopword jalan.
-    nltk.download('punkt', quiet=True)
-    nltk.download('stopwords', quiet=True)
+nltk.data.find('tokenizers/punkt')
+nltk.data.find('corpora/stopwords')
+except DownloadError:
+# Di server fresh, ini mengunduh resource minimal agar fungsi tokenisasi & stopword jalan.
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, wordpunct_tokenize
 
+# --- Sastrawi: stemmer Bahasa Indonesia ---
+
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+stemmer = StemmerFactory().create_stemmer()
+
 # --- scikit-learn & imbalanced-learn: model, pipeline, evaluasi ---
+
 from sklearn.model_selection import StratifiedKFold, GridSearchCV, cross_val_predict, learning_curve, cross_val_score
 from sklearn.metrics import (
-    classification_report, confusion_matrix, ConfusionMatrixDisplay,
-    roc_curve, auc, precision_recall_curve, average_precision_score,
-    accuracy_score
+classification_report, confusion_matrix, ConfusionMatrixDisplay,
+roc_curve, auc, precision_recall_curve, average_precision_score,
+accuracy_score
 )
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
@@ -52,12 +65,9 @@ from sklearn.calibration import CalibratedClassifierCV
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline as ImbPipeline
 
-import joblib, json
+import joblib, json, warnings
+warnings.filterwarnings("ignore")  # menyembunyikan warning agar log bersih
 
-warnings.filterwarnings("ignore")                               # menyembunyikan warning agar log bersih
-
-# Inisialisasi stemmer Bahasa Indonesia.
-stemmer = StemmerFactory().create_stemmer()
 
 # ============================================================
 # 2) PARAMETER GLOBAL & STRUKTUR FOLDER
