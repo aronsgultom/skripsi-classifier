@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Academic Portfolio{% endblock %}</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        /* palet aplikasi */
+                        'app-primary': '#0f766e',    /* teal-600 */
+                        'app-secondary': '#10b981',  /* emerald-500 */
+                        'app-soft': '#ecfdf3',       /* emerald-50 */
+                        'app-gray': '#64748b',
+                    },
+                    fontFamily: {
+                        'academic': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* nav-link default */
+        .nav-link {
+            color: #64748b; /* slate-500/600 */
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .nav-link:hover {
+            color: #0f766e; /* app-primary */
+            background-color: rgba(15, 118, 110, 0.08);
+        }
+        .nav-link.active {
+            color: #0f766e;
+            background-color: rgba(15, 118, 110, 0.12);
+        }
+    </style>
+</head>
+<body
+    class="bg-app-soft font-academic min-h-screen"
+    data-authenticated="{{ 'true' if current_user.is_authenticated else 'false' }}"
+    data-logout-url="{{ url_for('auth.logout') if current_user.is_authenticated else '' }}"
+>
+    <!-- NAVBAR -->
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg border-b border-emerald-50 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="{% if current_user.is_authenticated %}{{ url_for('profile.dashboard') }}{% else %}{{ url_for('auth.login') }}{% endif %}"
+                       class="flex items-center space-x-3">
+                        <div class="bg-gradient-to-r from-teal-600 to-emerald-500 p-2 rounded-xl">
+                            <i class="fas fa-graduation-cap text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-xl font-bold bg-gradient-to-r from-teal-700 to-emerald-500 bg-clip-text text-transparent">
+                                Academic Portfolio
+                            </span>
+                            <p class="text-sm text-slate-600">BKD Classification</p>
+                        </div>
+                    </a>
+                </div>
+
+                {% if current_user.is_authenticated %}
+                <!-- Menu kalau sudah login -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="{{ url_for('profile.dashboard') }}" class="nav-link">
+                            <i class="fas fa-chart-line mr-2 text-teal-500"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('profile.manage_profile') }}" class="nav-link">
+                            <i class="fas fa-user mr-2 text-teal-500"></i>Profile
+                        </a>
+                        <a href="{{ url_for('portfolio.index') }}" class="nav-link">
+                            <i class="fas fa-folder mr-2 text-teal-500"></i>Portfolio
+                        </a>
+                        <a href="{{ url_for('services.services') }}" class="nav-link">
+                            <i class="fas fa-cloud-upload-alt mr-2 text-teal-500"></i>Services
+                        </a>
+                    </div>
+                </div>
+
+                <!-- User + Logout -->
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-slate-600 hidden sm:block">
+                        Hai, {{ current_user.username }}
+                    </span>
+                    <button
+                        onclick="confirmLogout()"
+                        class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+                {% else %}
+                <!-- Kalau belum login -->
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('auth.login') }}"
+                       class="text-slate-600 hover:text-teal-600 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-teal-50">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Login
+                    </a>
+                    <a href="{{ url_for('auth.register') }}"
+                       class="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white px-4 py-2 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i class="fas fa-user-plus mr-2"></i>Register
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="container mx-auto px-6 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/60 backdrop-blur-lg border-t border-emerald-50 mt-16">
+        <div class="container mx-auto px-6 py-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <div class="w-8 h-8 bg-gradient-to-r from-teal-600 to-emerald-500 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white text-sm"></i>
+                    </div>
+                    <span class="text-teal-700 font-bold">Sistem Portofolio Akademik</span>
+                </div>
+                <p class="text-app-gray text-sm">© 2025 Manajemen Portofolio Akademik. All rights reserved.</p>
+                <p class="text-app-gray text-xs mt-2">By Nana</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- LOGOUT MODAL -->
+    {% if current_user.is_authenticated %}
+    <div id="logoutModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl transform transition-all duration-300 scale-95">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-sign-out-alt text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Keluar dari sistem?</h3>
+                <p class="text-gray-600 mb-6">Anda akan kembali ke halaman login.</p>
+                
+                <div class="flex space-x-3">
+                    <button onclick="hideLogoutModal()" 
+                            class="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 font-medium">
+                        <i class="fas fa-times mr-2"></i>Batal
+                    </button>
+                    <button onclick="performLogout()" 
+                            class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors duration-200 font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Keluar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        const body = document.body;
+        const isAuthenticated = body.getAttribute('data-authenticated') === 'true';
+        const logoutUrl = body.getAttribute('data-logout-url') || '';
+
+        function showNotification(message, type = 'success', duration = 5000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const styles = {
+                success: 'bg-gradient-to-r from-teal-500 to-emerald-500 text-white',
+                error: 'bg-gradient-to-r from-red-500 to-red-600 text-white',
+                warning: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white',
+                info: 'bg-gradient-to-r from-sky-500 to-cyan-500 text-white'
+            };
+
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-times-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+
+            toast.className = `${styles[type]} p-4 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full opacity-0 max-w-sm`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="${icons[type]} mr-3 text-lg"></i>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">${message}</p>
+                    </div>
+                    <button onclick="removeNotification(this.parentElement.parentElement)" 
+                            class="ml-3 text-white/80 hover:text-white transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(toast);
+
+            // masuk
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 100);
+
+            // keluar
+            setTimeout(() => {
+                removeNotification(toast);
+            }, duration);
+        }
+
+        function removeNotification(toast) {
+            toast.classList.add('translate-x-full', 'opacity-0');
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.parentElement.removeChild(toast);
+                }
+            }, 300);
+        }
+
+        function confirmLogout() {
+            if (!isAuthenticated) return;
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                const box = modal.querySelector('div');
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            }, 10);
+        }
+
+        function hideLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            const box = modal.querySelector('div');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 200);
+        }
+
+        function performLogout() {
+            if (!logoutUrl) return;
+            window.location.href = logoutUrl;
+        }
+    </script>
+</body>
+</html>

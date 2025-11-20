@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio{% endblock %}
+
+{% block head %}
+<style>
+.text-wrap {
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+.card-height {
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+}
+.card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.title-text {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.35;
+    margin-bottom: 0.5rem;
+}
+.description-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.5;
+}
+@media (max-width: 768px) {
+    .card-height { min-height: auto; }
+    .title-text { font-size: 1rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50">
+    <!-- Header Section -->
+    <div class="bg-white shadow-sm border-b border-emerald-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900">Portofolio Akademik</h2>
+                    <p class="mt-2 text-slate-500">Atur dan tampilkan dokumen BKD, penelitian, dan aktivitas tridharma Anda</p>
+                </div>
+                <button onclick="showAddForm()"
+                    class="bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-700 hover:to-emerald-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <i class="fas fa-plus mr-2"></i>Tambah Item Baru
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Add/Edit Form -->
+        <div id="addForm" class="hidden bg-white rounded-2xl shadow-xl border border-emerald-50 mb-8 overflow-hidden">
+            <div class="bg-gradient-to-r from-teal-600 to-emerald-500 px-6 py-4">
+                <h3 class="text-xl font-bold text-white">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    <span id="formTitle">Tambah Item Portofolio</span>
+                </h3>
+            </div>
+
+            <form id="portfolioForm" class="p-6" enctype="multipart/form-data">
+                <input type="hidden" id="portfolioId" name="portfolio_id" value="">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            <i class="fas fa-layer-group mr-2 text-teal-600"></i>Kategori Utama
+                        </label>
+                        <select id="main_category" name="main_category" required onchange="updateSubCategories()"
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors bg-white/60">
+                            <option value="">Pilih Kategori Utama</option>
+                            <option value="Penelitian">🔬 Penelitian</option>
+                            <option value="Pendidikan">🎓 Pendidikan</option>
+                            <option value="Pengabdian">🤝 Pengabdian</option>
+                            <option value="Penunjang">⭐ Penunjang</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            <i class="fas fa-tags mr-2 text-teal-600"></i>Sub Kategori
+                        </label>
+                        <select id="sub_category" name="sub_category" required
+                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors bg-white/60">
+                            <option value="">Pilih Sub Kategori</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <i class="fas fa-heading mr-2 text-teal-600"></i>Judul
+                    </label>
+                    <input type="text" id="title" name="title" required
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors bg-white/60"
+                        placeholder="Contoh: Artikel Jurnal Sinta 2, Konferensi, Modul Ajar, Bukti BKD...">
+                </div>
+
+                <!-- Upload File -->
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <i class="fas fa-file-upload mr-2 text-teal-600"></i>Upload File
+                    </label>
+                    <input type="file" id="portfolio_file" name="file" accept=".pdf,.jpg,.jpeg,.png"
+                        class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors bg-white/60">
+                    <p class="text-xs text-slate-500 mt-2">
+                        Saat menambah item: file <strong>wajib</strong>. Saat mengedit: pilih file jika ingin mengganti.
+                    </p>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-slate-100">
+                    <button type="button" onclick="hideAddForm()"
+                        class="px-6 py-3 border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors font-medium">
+                        <i class="fas fa-times mr-2"></i>Batal
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-700 hover:to-emerald-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <i class="fas fa-save mr-2"></i>
+                        <span id="submitButtonText">Tambah Item</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Portfolio Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {% for portfolio in portfolios %}
+            <div class="bg-white rounded-2xl shadow-lg border border-emerald-50 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col card-height">
+                <div class="px-6 pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <!-- Badge kategori -->
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                            {% if portfolio.main_category == 'Penelitian' %} bg-emerald-100 text-emerald-800
+                            {% elif portfolio.main_category == 'Pendidikan' %} bg-teal-100 text-teal-800
+                            {% elif portfolio.main_category == 'Pengabdian' %} bg-sky-100 text-sky-800
+                            {% else %} bg-amber-100 text-amber-800 {% endif %}">
+                            {% if portfolio.main_category == 'Penelitian' %}🔬{% elif portfolio.main_category == 'Pendidikan' %}🎓{% elif portfolio.main_category == 'Pengabdian' %}🤝{% else %}⭐{% endif %}
+                            {{ portfolio.main_category }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="px-6 pb-6 flex-1 flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-900 mb-2 title-text" title="{{ portfolio.title }}">
+                        {{ portfolio.title }}
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mb-3 text-wrap">
+                        <i class="fas fa-tag mr-1"></i>{{ portfolio.sub_category }}
+                    </p>
+
+                    {% if portfolio.file_path %}
+                    <div class="mb-4">
+                        <a href="/{{ portfolio.file_path }}" target="_blank"
+                           class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i> Lihat / Unduh File
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="flex space-x-2 mb-4 mt-auto">
+                        <button onclick="editPortfolio('{{ portfolio.id }}')"
+                            class="flex-1 bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center shadow-sm hover:shadow-md">
+                            <i class="fas fa-edit mr-2"></i>Edit
+                        </button>
+                        <button onclick="deletePortfolio('{{ portfolio.id }}')"
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center shadow-sm hover:shadow-md">
+                            <i class="fas fa-trash mr-2"></i>Hapus
+                        </button>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <p class="text-xs text-slate-400">
+                            <i class="fas fa-calendar-alt mr-1"></i>
+                            Ditambahkan {{ portfolio.created_at.strftime('%d %B %Y') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not portfolios %}
+        <div class="text-center py-16">
+            <div class="bg-white rounded-2xl shadow-lg border border-emerald-50 max-w-md mx-auto p-8">
+                <i class="fas fa-folder-open text-6xl text-emerald-100 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 mb-2">Belum Ada Item Portofolio</h3>
+                <p class="text-slate-500 mb-6">Mulai tambahkan dokumen BKD, penelitian, atau aktivitas akademik Anda.</p>
+                <button onclick="showAddForm()"
+                    class="bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-700 hover:to-emerald-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200">
+                    <i class="fas fa-plus mr-2"></i>Tambah Item Pertama
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+const categoryData = JSON.parse('{{ categories|tojson|safe }}');
+
+function showAddForm() {
+    document.getElementById('addForm').classList.remove('hidden');
+    document.getElementById('formTitle').textContent = 'Tambah Item Portofolio';
+    document.getElementById('submitButtonText').textContent = 'Tambah Item';
+    document.getElementById('portfolioId').value = '';
+    document.getElementById('portfolioForm').reset();
+    document.getElementById('portfolio_file').required = true;
+}
+
+function hideAddForm() {
+    document.getElementById('addForm').classList.add('hidden');
+}
+
+function updateSubCategories() {
+    const mainCat = document.getElementById('main_category').value;
+    const subCatSelect = document.getElementById('sub_category');
+    subCatSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
+    if (mainCat && categoryData[mainCat]) {
+        categoryData[mainCat].forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub;
+            option.textContent = sub;
+            subCatSelect.appendChild(option);
+        });
+    }
+}
+
+function editPortfolio(id) {
+    fetch(`/portfolio/${id}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) return alert('Error: ' + data.message);
+            document.getElementById('portfolioId').value = id;
+            document.getElementById('main_category').value = data.portfolio.main_category;
+            document.getElementById('title').value = data.portfolio.title;
+            updateSubCategories();
+            setTimeout(() => {
+                document.getElementById('sub_category').value = data.portfolio.sub_category;
+            }, 100);
+            document.getElementById('formTitle').textContent = 'Edit Item Portofolio';
+            document.getElementById('submitButtonText').textContent = 'Update Item';
+            document.getElementById('addForm').classList.remove('hidden');
+            document.getElementById('addForm').scrollIntoView({ behavior: 'smooth' });
+            // saat edit: file tidak wajib
+            document.getElementById('portfolio_file').required = false;
+        })
+        .catch(() => alert('Gagal memuat data portofolio'));
+}
+
+function deletePortfolio(id) {
+    if (!confirm('Yakin hapus item ini?')) return;
+    fetch(`/portfolio/${id}`, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'Gagal menghapus'));
+            }
+        })
+        .catch(() => alert('Error menghapus item'));
+}
+
+document.getElementById('portfolioForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const portfolioId = document.getElementById('portfolioId').value;
+    const url = portfolioId ? `/portfolio/${portfolioId}` : '/portfolio/add';
+    const method = portfolioId ? 'PUT' : 'POST';
+
+    fetch(url, { method, body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                hideAddForm();
+                window.location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'Gagal menyimpan'));
+            }
+        })
+        .catch(() => alert('Error menyimpan portofolio'));
+});
+
+/* Soft-wrap judul/file panjang */
+document.addEventListener('DOMContentLoaded', function() {
+    const zws = '\u200b';
+    const softWrap = (text) => {
+        return text
+            .replace(/_/g, '_' + zws)
+            .replace(/-/g, '-' + zws)
+            .replace(/([a-z])([A-Z])/g, '$1' + zws + '$2')
+            .replace(/([A-Za-z])(\d)/g, '$1' + zws + '$2')
+            .replace(/(\d)([A-Za-z])/g, '$1' + zws + '$2');
+    };
+    document.querySelectorAll('.title-text, .text-wrap').forEach(el => {
+        const original = el.textContent;
+        const wrapped = softWrap(original);
+        if (wrapped !== original) {
+            el.textContent = wrapped;
+            el.setAttribute('title', original);
+        }
+    });
+});
+</script>
+{% endblock %}

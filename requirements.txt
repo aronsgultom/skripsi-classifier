@@ -1,0 +1,16 @@
+Flask
+scikit-learn
+imblearn
+joblib
+numpy
+scipy
+Sastrawi
+nltk
+PyPDF2
+pdfminer.six
+pdf2image
+pytesseract
+tqdm
+pandas
+matplotlib
+seaborn
